@@ -10,6 +10,11 @@ import os, sys
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
 from ggplot import *
+from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_score
+from sklearn.metrics import precision_score, recall_score, classification_report
+from sklearn.metrics import accuracy_score, f1_score, recall_score
+from sklearn.cross_validation import train_test_split
+from sklearn.cross_validation import cross_val_score
 
 DataDir           = 'data'
 DataFileTraining  = 'pml-training.csv'
@@ -53,38 +58,55 @@ myDF["user_name"] = myLabelEncoder.transform(myDF["user_name"])
 myDFTest["user_name"] =  myLabelEncoder.transform(myDFTest["user_name"])
 
 
-
-
-       
-# myDFY = ((myDF.CHURN_INV_M4 == 1) | (myDF.TRT_Code_Decision==2)).astype(int)
-# myDFX = myDF[listKeyColums]
-# print("> add cols ok")
-# myDFX[listNumericData] = myDF[listNumericData]
-
-# print("> filter columns that contains more than 100 unique values")
-# nunique = pd.Series([myDFX[col].nunique() for col in myDFX.columns], index = myDFX.columns)
-# cols = nunique[nunique < 100].index.tolist()
-# myDFX = myDFX[cols]
-    
-# convert to numbefor aColumn in listCategorielData:r the labels 
-# for aColumn in listCategorielData:
-# myDFX[aColumn] = transformLabelIntoInteger(myDF[aColumn])
-    
 #print("> drop constants columns")
 #nunique = pd.Series([myDFX[col].nunique() for col in myDFX.columns], index = myDFX.columns)
 #cols = nunique[nunique == 1].index.tolist()
 #myDFX = myDFX.drop(cols,axis=1)
 
-#print("> create test / train")
-# 90% train / 10% test
-#myDFX['is_train'] = np.random.uniform(0, 1, len(myDFX)) <= .9 
-#myTrainX, myTestX = myDFX[myDFX['is_train']==True], myDFX[myDFX['is_train']==False]
-#myTrainY, myTestY = myDFY[myDFX['is_train']==True], myDFY[myDFX['is_train']==False]
+# print("> filter columns that contains more than 100 unique values")
+# nunique = pd.Series([myDFX[col].nunique() for col in myDFX.columns], index = myDFX.columns)
+# cols = nunique[nunique < 100].index.tolist()
+# myDFX = myDFX[cols]
+      
+# now 80% / 20%
+X_train, X_test, y_train, y_test = train_test_split(myDF.ix[:,0:-1], myDF.ix[:,-1], test_size=0.2)
 
-#print("> RF")
-# now RF    
-#myForest = RandomForestClassifier(n_estimators = 100,n_jobs=4)
-#myForest.fit(myTrainX,myTrainY)
+myForest = RandomForestClassifier(n_estimators = 100,n_jobs=3)
+myForest.fit(X_train,y_train)
 
-# myPreds = iris.target_names[clf.predict(test[features])]
-# pd.crosstab(test['species'], preds, rownames=['actual'], colnames=['preds'])
+y_testHat = myForest.predict(X_test)
+confusionMatrix = confusion_matrix(y_test, y_testHat, labels=None)
+
+# faire le y_test en multi colonnes
+y_testHatProba = myForest.predict_proba(X_test)
+
+listColumns = np.sort(y_train.unique())
+
+y_testProba = pd.DataFrame(y_test)
+for col in listColumns:
+    y_testProba[col]=(y_testProba['classe'] == col)*1
+y_testProba = y_testProba.drop('classe',axis=1)
+
+roc_auc = sklearn.metrics.roc_auc_score(y_testProba, y_testHatProba)
+
+###############################################################################
+accScore  = accuracy_score(y_test, y_testHat)
+f1_score  = f1_score(y_test, y_testHat,average='weighted')
+recall    = recall_score(y_test, y_testHat, average='weighted')
+precision = precision_score(y_test, y_testHat,average='weighted')
+report    = classification_report(y_test, y_testHat)
+###############################################################################
+
+# for plot
+completRes = pd.DataFrame(y_test)
+completRes['Prediction'] = y_testHat
+completRes.columns = ['Reference', 'Prediction'] 
+
+# jitter ????
+# corrplot(cor(trainDummy[,-idxClasse]), order = "FPC", method = "color", type = "lower", tl.cex = 0.6,title="\n\nCorrelation between features" )
+# plot(varImp(modelFit), top = 40)
+
+###############################################################################
+
+
+
