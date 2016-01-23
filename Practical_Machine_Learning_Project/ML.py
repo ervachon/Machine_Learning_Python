@@ -47,15 +47,16 @@ myLabelEncoder.fit(myDF["new_window"])
 myDF["new_window"] = myLabelEncoder.transform(myDF["new_window"])
 myDFTest["new_window"] =  myLabelEncoder.transform(myDFTest["new_window"])
 
+myLabelEncoder = preprocessing.LabelEncoder()
+myLabelEncoder.fit(myDF["user_name"])
+myDF["user_name"] = myLabelEncoder.transform(myDF["user_name"])
+myDFTest["user_name"] =  myLabelEncoder.transform(myDFTest["user_name"])
 
 
 
 
-
-
-
-        
-#  myDFY = ((myDF.CHURN_INV_M4 == 1) | (myDF.TRT_Code_Decision==2)).astype(int)
+       
+# myDFY = ((myDF.CHURN_INV_M4 == 1) | (myDF.TRT_Code_Decision==2)).astype(int)
 # myDFX = myDF[listKeyColums]
 # print("> add cols ok")
 # myDFX[listNumericData] = myDF[listNumericData]
