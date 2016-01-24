@@ -9,13 +9,24 @@ import numpy  as np
 import os, sys
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
-from ggplot import *
-from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_score
-from sklearn.metrics import precision_score, recall_score, classification_report
-from sklearn.metrics import accuracy_score, f1_score, recall_score
+from sklearn.metrics import confusion_matrix, precision_score
+from sklearn.metrics import recall_score, classification_report
+from sklearn.metrics import accuracy_score, f1_score,roc_auc_score
 from sklearn.cross_validation import train_test_split
-from sklearn.cross_validation import cross_val_score
+import re
 
+def returnDomain(email):
+    strTmp = ""
+    searchDomain = re.search( r'^(.*)@(.*)$', email, re.M|re.I)
+    if searchDomain:
+       #print "searchDomain.group() : ", searchDomain.group()
+       #print "searchDomain.group(1) : ", searchDomain.group(1)
+       #print "searchDomain.group(2) : ", searchDomain.group(2)
+       strTmp = searchDomain.group(2)
+    else:
+       strTmp = "NA"
+    return(strTmp)
+    
 DataDir           = 'data'
 DataFileTraining  = 'pml-training.csv'
 DataFileTest      = 'pml-testing.csv'
@@ -87,7 +98,7 @@ for col in listColumns:
     y_testProba[col]=(y_testProba['classe'] == col)*1
 y_testProba = y_testProba.drop('classe',axis=1)
 
-roc_auc = sklearn.metrics.roc_auc_score(y_testProba, y_testHatProba)
+roc_auc = roc_auc_score(y_testProba, y_testHatProba)
 
 ###############################################################################
 accScore  = accuracy_score(y_test, y_testHat)
