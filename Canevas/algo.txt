@@ -1,0 +1,20 @@
+Wife_age 			: no transform
+Wife_education 		: dummy
+Husband_education 	: dummy (iso wife)
+Number_children 	: transform
+Wife_religion 		: binary
+Wife_type_job		: na -> no, type_X -> yes
+Husband_occupation 	: dummy
+Standard_of_living 	: dummy
+Media_exposure  	: binary
+
+Contraceptive_method_used : no_use -> 1, long -> 2 , short ->3
+
+1. create_validation_test_train_sets
+2. create_kfold.py
+3. clean_data.py
+4. predict_RF.py
+5. predict_logit.py
+6. predict_xgboost.py
+7. stacking.py
+8. score ?
