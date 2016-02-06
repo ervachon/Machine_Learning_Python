@@ -25,20 +25,28 @@ NbP = len(myDF[(myDF.y_true == 1)])
 plt.axis([-0.1, 1.1, -0.1, 1.1])
 plt.plot([1,0,0,1,],[0,0,1,1,] , 'g-')   
 
-
-lX=[1.]
-lY=[0.]
+lP=[[1.],[0.],[0.]]
 
 for seuil in np.arange(0,1.05,0.05):
    sub = myDF[(myDF.y_proba >= seuil)]
    TVP = 1.*len(sub[(sub.y_true == 1)])/NbP
    FVP = 1.*len(sub[(sub.y_true == 0)])/NbN
    print("> seuil : " + str(seuil) + ", (" + str(FVP) + "," + str(TVP) + ")")
-   lX = lX + [FVP]
-   lY = lY + [TVP]
+   
+   x1 = FVP
+   x2 = lP[0][len(lP[0])-1]
+   y1 = TVP
+   y2 = lP[1][len(lP[0])-1]
+   aire = np.abs(1.*np.min([y1,y2])*(x1-x2)) + np.abs((y1-y2)*(x1-x2)/2.)
+   lP[0] = lP[0] + [FVP]
+   lP[1] = lP[1] + [TVP]
+   lP[2] = lP[2] + aire
 
-lX = lX + [0.]
-lY = lY + [0.]
-plt.plot(lX, lY, linestyle='-', marker='o')   
+lP[0] = lP[0] + [0.]
+lP[1] = lP[1] + [0.]
+
+print( "> AUC = " + str(np.sum(lP[2])))
+
+plt.plot(lP[0], lP[1], linestyle='-')   
 plt.plot([0,1],[0,1] , 'r-')   
 plt.show()
